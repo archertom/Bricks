@@ -19,18 +19,43 @@ BALL_SIZE = 10
 BRICK_WIDTH = 60
 BRICK_HEIGHT = 40
 
+# SPRITE_SCALING_BAT
+# SPRITE_SCALING_BALL
+# SPRITE_SCALING_BRICK
+
+# Drawing as primitives has not worked (it seems Python struggles to keep up with the drawing requirements).
+    # Tried a ShapeElementList which should reduce the overhead, but had a failure from Arcade:
+    # "AttributeError: 'NoneType' object has no attribute 'mode'" which suggests the primitives are arriving as
+        # None rather than shapes.  Odd.
+# Need to try redrawing the shapes as sprites, the Arcade examples show this can be coped with, and then it will be
+    # possible to use the "collisions" method against a sprite list.
+
 
 # Game area
 class MyGame(arcade.Window):
     def __init__(self, width, height, title):
         super().__init__(width, height, title)
+
         arcade.set_background_color(arcade.color.BLACK)
+
         self.set_mouse_visible(False)
 
+        # Set up the sprite lists
+        self.bat_list = None
+        self.ball_list = None
+        self.brick_list = None
+
+        # Set up the player
+        self.bat_sprite = None
+
     def setup(self):
-        self.ball = Ball()
-        self.bat = Bat()
-        self.bricks = arcade.ShapeElementList()
+        #self.ball = Ball()
+
+        self.bat_list = arcade.SpriteList()
+        self.bat_sprite = Bat(0.2)
+        self.bat_list.append(self.bat_sprite)
+
+        #self.bricks = arcade.ShapeElementList()
         brick_y = 500
         row = 0
         num_bricks = 0
@@ -50,37 +75,39 @@ class MyGame(arcade.Window):
         #         row += 1
         #     #return self.bricks
 
-        draw_brick = arcade.draw_rectangle_filled(50, 50, 50, 50, arcade.color.BEAU_BLUE)
-        self.bricks.append(draw_brick)
+        #draw_brick = arcade.draw_rectangle_filled(50, 50, 50, 50, arcade.color.BEAU_BLUE)
+        #self.bricks.append(draw_brick)
 
     def on_draw(self):
         # start rendering, must be done before any drawing
         arcade.start_render()
-        arcade.draw_circle_filled(self.ball.center_x, self.ball.center_y, self.ball.size, self.ball.colour)
-        arcade.draw_rectangle_filled(
-            self.bat.center_x, self.bat.center_y, self.bat.width, self.bat.height, self.bat.colour
-        )
+        #arcade.draw_circle_filled(self.ball.center_x, self.ball.center_y, self.ball.size, self.ball.colour)
+        self.bat_list.draw()
+        # arcade.draw_rectangle_filled(
+        #     self.bat.center_x, self.bat.center_y, self.bat.width, self.bat.height, self.bat.colour
+        # )
         #for brick in self.bricks:
             #arcade.draw_rectangle_filled(brick.brick_c_x, brick.brick_c_y, BRICK_WIDTH, BRICK_HEIGHT, brick.colour)
-        self.bricks.draw()
+        #self.bricks.draw()
 
-    def on_update(self, delta_time):
-        self.ball.update(delta_time)
-        self.ball.bounce(self.bat)
-        self.ball.reset_position()
+    #def on_update(self, delta_time):
+        #self.ball.update(delta_time)
+        #self.ball.bounce(self.bat)
+        #self.ball.reset_position()
 
     def on_mouse_motion(self, x, y, dx, dy):
-        self.bat.center_x = x
-        self.bat.left = (self.bat.center_x - self.bat.width / 2)
-        self.bat.right = (self.bat.center_x + self.bat.width / 2)
-        self.bat.top = (self.bat.center_y + self.bat.height / 2)
+        # self.bat.center_x = x
+        # self.bat.left = (self.bat.center_x - self.bat.width / 2)
+        # self.bat.right = (self.bat.center_x + self.bat.width / 2)
+        # self.bat.top = (self.bat.center_y + self.bat.height / 2)
+        self.bat_sprite.center_x = x
 
     def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
         self.ball.delta_y = -200
         # waits for the mouse to be clicked to start the game
 
 
-class Ball:
+class Ball(arcade.Sprite):
 # Ball stuff:
     def __init__(self):
         self.center_x = 300
@@ -154,7 +181,7 @@ class Ball:
                         brick.level -= 1
 
 
-class Brick:
+class Brick(arcade.Sprite):
     # Bricks stuff
 
     def __init__(self, bbrick_x, bbrick_y):
@@ -163,7 +190,6 @@ class Brick:
         self.width = BRICK_WIDTH
         self.height = BRICK_HEIGHT
         self.level = random.randint(1, 6)
-       # self.level = 1
         self.colour = self.level_colour(self.level)
 
     def brick(self, brick_c_x, brick_c_y):
@@ -184,18 +210,22 @@ class Brick:
 
 
 
-class Bat(object):
+class Bat(arcade.Sprite):
     # stuff about the bat
-    width = 60
-    height = 20
-    center_x = 300
-    center_y = 20
-    colour = arcade.color.SUNSET
+    # width = 60
+    # height = 20
+    # center_x = 300
+    # center_y = 20
+    # colour = arcade.color.SUNSET
 
-    def __init__(self):
-        self.left = (self.center_x - self.width/2)
-        self.right = (self.center_x + self.width/2)
-        self.top = (self.center_y + self.height/2)
+    def __init__(self, sprite_scaling):
+
+        super().__init__("bat yellow.png", sprite_scaling)
+        self.center_x = 300
+        self.center_y = 20
+        # self.left = (self.center_x - self.width/2)
+        # self.right = (self.center_x + self.width/2)
+        # self.top = (self.center_y + self.height/2)
 
 
 def main():
