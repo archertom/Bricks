@@ -49,12 +49,18 @@ class MyGame(arcade.Window):
         self.bat_sprite = None
 
     def setup(self):
-        #self.ball = Ball()
 
+        #set up the ball
+        self.ball_list = arcade.SpriteList()
+        self.ball_sprite = Ball(0.1)
+        self.ball_list.append(self.ball_sprite)
+
+        # set up the bat
         self.bat_list = arcade.SpriteList()
         self.bat_sprite = Bat(0.2)
         self.bat_list.append(self.bat_sprite)
 
+        # set up the bricks
         #self.bricks = arcade.ShapeElementList()
         brick_y = 500
         row = 0
@@ -81,63 +87,72 @@ class MyGame(arcade.Window):
     def on_draw(self):
         # start rendering, must be done before any drawing
         arcade.start_render()
-        #arcade.draw_circle_filled(self.ball.center_x, self.ball.center_y, self.ball.size, self.ball.colour)
+
+        self.ball_list.draw()
+        # arcade.draw_circle_filled(self.ball.center_x, self.ball.center_y, self.ball.size, self.ball.colour)
         self.bat_list.draw()
-        # arcade.draw_rectangle_filled(
-        #     self.bat.center_x, self.bat.center_y, self.bat.width, self.bat.height, self.bat.colour
-        # )
+
         #for brick in self.bricks:
             #arcade.draw_rectangle_filled(brick.brick_c_x, brick.brick_c_y, BRICK_WIDTH, BRICK_HEIGHT, brick.colour)
         #self.bricks.draw()
 
-    #def on_update(self, delta_time):
-        #self.ball.update(delta_time)
-        #self.ball.bounce(self.bat)
-        #self.ball.reset_position()
+
+    def on_update(self, delta_time):
+
+        self.ball_list.update()
 
     def on_mouse_motion(self, x, y, dx, dy):
-        # self.bat.center_x = x
-        # self.bat.left = (self.bat.center_x - self.bat.width / 2)
-        # self.bat.right = (self.bat.center_x + self.bat.width / 2)
-        # self.bat.top = (self.bat.center_y + self.bat.height / 2)
         self.bat_sprite.center_x = x
 
     def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
-        self.ball.delta_y = -200
+        self.ball_sprite.delta_y = -2
         # waits for the mouse to be clicked to start the game
 
 
 class Ball(arcade.Sprite):
 # Ball stuff:
-    def __init__(self):
+    def __init__(self, sprite_scaling):
+        super().__init__("ball red.png", sprite_scaling)
         self.center_x = 300
         self.center_y = 300
         self.delta_x = 0
         self.delta_y = 0
-        self.size = BALL_SIZE
-        self.colour = arcade.color.STIZZA
+
 
     # If the ball drops off the bottom
     def reset_position(self):
-        if self.center_y < 0:
-            self.center_x = 300
-            self.center_y = 300
-            self.delta_x = 0
-            self.delta_y = 0
+        self.center_x = 300
+        self.center_y = 300
+        self.delta_x = 0
+        self.delta_y = 0
+
 
     # How the ball moves
-    def update(self, delta_time):
-        self.center_x += self.delta_x * delta_time
-        self.center_y += self.delta_y * delta_time
+    def update(self):
+        self.center_x += self.delta_x
+        self.center_y += self.delta_y
+
+        if self.left < 0:
+            self.delta_x *= -1
+
+        if self.right > SCREEN_WIDTH:
+            self.delta_x *= -1
+
+        if self.bottom < 0:
+            self.reset_position()
+
+        if self.top > SCREEN_HEIGHT:
+            self.delta_y *= -1
+
 
     def bounce(self, bat):
         # Below are the bounce conditions upon hitting a wall
-        if self.center_x < BALL_SIZE / 2:
-            self.delta_x *= -1
-        if self.center_x > SCREEN_WIDTH - BALL_SIZE / 2:
-            self.delta_x *= -1
-        if self.center_y > SCREEN_HEIGHT - BALL_SIZE / 2:
-            self.delta_y *= -1
+        # if self.center_x < BALL_SIZE / 2:
+        #     self.delta_x *= -1
+        # if self.center_x > SCREEN_WIDTH - BALL_SIZE / 2:
+        #     self.delta_x *= -1
+        # if self.center_y > SCREEN_HEIGHT - BALL_SIZE / 2:
+        #     self.delta_y *= -1
 
         # conditions for hitting the bat
         if (
@@ -212,20 +227,11 @@ class Brick(arcade.Sprite):
 
 class Bat(arcade.Sprite):
     # stuff about the bat
-    # width = 60
-    # height = 20
-    # center_x = 300
-    # center_y = 20
-    # colour = arcade.color.SUNSET
 
     def __init__(self, sprite_scaling):
-
         super().__init__("bat yellow.png", sprite_scaling)
         self.center_x = 300
         self.center_y = 20
-        # self.left = (self.center_x - self.width/2)
-        # self.right = (self.center_x + self.width/2)
-        # self.top = (self.center_y + self.height/2)
 
 
 def main():
