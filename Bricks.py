@@ -44,13 +44,15 @@ class MyGame(arcade.Window):
         self.bat_sprite = None
 
         # Set up brick textures
-        self.brick_textures = arcade.load_spritesheet("bricks textures.png", 300, 200, 6, 6)
+        self.brick_textures = arcade.load_spritesheet("images/bricks textures.png", 300, 200, 6, 6)
 
         self.gameover = False
+        self.gamewin = False
 
     def setup(self):
 
         self.gameover = False
+        self.gamewin = False
 
 
         #set up the ball
@@ -95,6 +97,11 @@ class MyGame(arcade.Window):
         # gameover conditions
         if self.ball_sprite.balls_left < 1:
             self.game_over()
+
+
+
+        if len(self.brick_list) == 0:
+            self.game_win()
 
 
     def on_update(self, delta_time):
@@ -144,7 +151,7 @@ class MyGame(arcade.Window):
             else:
                 brick.kill()
                 if len(self.brick_list) == 0:
-                    self.restart()
+                    self.game_win()
 
 
         # collisions with walls
@@ -183,6 +190,9 @@ class MyGame(arcade.Window):
         if self.gameover:
             self.restart()
 
+        if self.gamewin:
+            self.restart()
+
 
     def on_mouse_motion(self, x, y, dx, dy):
         self.bat_sprite.center_x = x
@@ -206,12 +216,20 @@ class MyGame(arcade.Window):
         start_y = 300
         arcade.draw_text("Press spacebar to restart", start_x, start_y, arcade.color.WHITE)
 
+    def game_win(self):
+        self.gamewin = True
+        start_x = 200
+        start_y = 400
+        arcade.draw_text("You won!", start_x, start_y, arcade.color.WHITE)
+        start_x = 200
+        start_y = 300
+        arcade.draw_text("Press spacebar to restart", start_x, start_y, arcade.color.WHITE)
 
 
 class Ball(arcade.Sprite):
 # Ball stuff:
     def __init__(self, sprite_scaling):
-        super().__init__("ball red.png", sprite_scaling)
+        super().__init__("images/ball red.png", sprite_scaling)
         self.center_x = 300
         self.center_y = 300
         self.delta_x = 0
@@ -247,12 +265,12 @@ class Brick(arcade.Sprite):
     @staticmethod
     def level_colour(level):
         level_colour = {
-            1: "brick l1 grey.png",
-            2: "brick l2 yellow.png",
-            3: "brick l3 green.png",
-            4: "brick l4 blue.png",
-            5: "brick l5 purple.png",
-            6: "brick l6 red.png",
+            1: "images/brick l1 grey.png",
+            2: "images/brick l2 yellow.png",
+            3: "images/brick l3 green.png",
+            4: "images/brick l4 blue.png",
+            5: "images/brick l5 purple.png",
+            6: "images/brick l6 red.png",
         }
         return level_colour[level]
 
@@ -261,7 +279,7 @@ class Bat(arcade.Sprite):
     # stuff about the bat
 
     def __init__(self, sprite_scaling):
-        super().__init__("bat yellow.png", sprite_scaling)
+        super().__init__("images/bat yellow.png", sprite_scaling)
         self.center_x = 300
         self.center_y = 40
 
@@ -271,6 +289,7 @@ def main():
     game = MyGame(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
     game.setup()
     arcade.run()
+
 
 if __name__ == "__main__":
     main()
